@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import Togglable from './components/Togglable'
+import NewBlogForm from './components/NewBlogForm'
 
 const Toast = ({toastMsg}) => {
   if (toastMsg===null) {
@@ -19,16 +21,17 @@ const App = () => {
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('') 
   const [user,setUser] = useState(null)
-  const [blogTitle,setBlogTitle] = useState('')
-  const [blogAuthor,setBlogAuthor] = useState('')
-  const [blogUrl,setBlogUrl] = useState('')
   const [toastMsg,setToastMsg] = useState(null)
 
+  const getBlogs = async () => {
+    const res = await blogService.getAll()
+    console.log(res);
+    setBlogs( res.sort((a,b) => b.likes - a.likes) )  
+  }
+
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
-  }, [user])
+    getBlogs()
+  },[user])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
@@ -70,24 +73,6 @@ const App = () => {
     setUser(null)
   }
 
-  //Create BLOG
-  const createBlog = async (e) => {
-    e.preventDefault()
-
-    try {
-      const res = await blogService.createNewBlog({title:blogTitle,author:blogAuthor,url:blogUrl})
-      setToastMsg(`New Blog by ${blogAuthor} titled ${blogTitle} has been added`)
-      setTimeout(() => {
-        setToastMsg(null)
-      }, 5000)
-    } catch(exception){
-      setToastMsg(`Error: ${exception.response.data.error}`)
-      setTimeout(() => {
-        setToastMsg(null)
-      }, 5000)
-    }
-  }
-
   if (user === null) {
     return (
       <div>
@@ -120,44 +105,16 @@ const App = () => {
 
   return (
     <div>
-      <h1>Blogs</h1>
+        <h1>Blogs</h1>
       <Toast toastMsg={toastMsg}/>
       <p>{user.name} is logged in</p>
       <button onClick={handleLogout}>logout</button>
-      <h2>Add new blog</h2>
-      <form onSubmit={createBlog}>
-        <div>
-          Title
-            <input
-            type="text"
-            value={blogTitle}
-            name="Title"
-            onChange={({ target }) => setBlogTitle(target.value)}
-          />
-        </div>
-        <div>
-          Author
-            <input
-            type="text"
-            value={blogAuthor}
-            name="Author"
-            onChange={({ target }) => setBlogAuthor(target.value)}
-          />
-        </div>
-        <div>
-          URL
-            <input
-            type="text"
-            value={blogUrl}
-            name="URL"
-            onChange={({ target }) => setBlogUrl(target.value)}
-          />
-        </div>
-        <button type="submit">Create New Blog</button>
-      </form>
+      <Togglable buttonLabel={'Create New Blog'}>
+        <NewBlogForm setToastMsg={setToastMsg} getBlogs={getBlogs}/>
+      </Togglable>
       <h2>blogs</h2>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} getBlogs={getBlogs}/>
       )}
     </div>
   )
