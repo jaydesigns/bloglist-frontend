@@ -5,7 +5,7 @@ import loginService from './services/login'
 import Togglable from './components/Togglable'
 import NewBlogForm from './components/NewBlogForm'
 
-const Toast = ({toastMsg}) => {
+const Toast = ({ toastMsg }) => {
   if (toastMsg===null) {
     return null
   }
@@ -18,20 +18,16 @@ const Toast = ({toastMsg}) => {
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
-  const [password, setPassword] = useState('') 
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [user,setUser] = useState(null)
   const [toastMsg,setToastMsg] = useState(null)
 
   const getBlogs = async () => {
     const res = await blogService.getAll()
-    console.log(res);
-    setBlogs( res.sort((a,b) => b.likes - a.likes) )  
+    console.log(res)
+    setBlogs( res.sort((a,b) => b.likes - a.likes) )
   }
-
-  useEffect(() => {
-    getBlogs()
-  },[user])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogUser')
@@ -40,6 +36,10 @@ const App = () => {
       setUser(user)
       blogService.setToken(user.token)
     }
+  },[])
+
+  useEffect(() => {
+    getBlogs()
   },[])
 
   const handleLogin = async (e) => {
@@ -67,7 +67,7 @@ const App = () => {
     }
   }
 
-  
+
   const handleLogout = () => {
     window.localStorage.removeItem('loggedBlogUser')
     setUser(null)
@@ -81,7 +81,7 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-              <input
+            <input
               type="text"
               value={username}
               name="Username"
@@ -90,7 +90,7 @@ const App = () => {
           </div>
           <div>
             password
-              <input
+            <input
               type="password"
               value={password}
               name="Password"
@@ -105,7 +105,7 @@ const App = () => {
 
   return (
     <div>
-        <h1>Blogs</h1>
+      <h1>Blogs</h1>
       <Toast toastMsg={toastMsg}/>
       <p>{user.name} is logged in</p>
       <button onClick={handleLogout}>logout</button>
