@@ -5,7 +5,7 @@ import loginService from './services/login'
 import Togglable from './components/Togglable'
 import NewBlogForm from './components/NewBlogForm'
 
-const Toast = ({ toastMsg }) => {
+export const Toast = ({ toastMsg }) => {
   if (toastMsg===null) {
     return null
   }
@@ -22,6 +22,7 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user,setUser] = useState(null)
   const [toastMsg,setToastMsg] = useState(null)
+  const [visible,setVisible] = useState()
 
   const getBlogs = async () => {
     const res = await blogService.getAll()
@@ -103,18 +104,22 @@ const App = () => {
     )
   }
 
+  const createBlog = async (blogObject) => {
+    const res = await blogService.createNewBlog(blogObject)
+    setBlogs(blogs.concat(res.data))
+  }
+
   return (
     <div>
       <h1>Blogs</h1>
-      <Toast toastMsg={toastMsg}/>
       <p>{user.name} is logged in</p>
       <button onClick={handleLogout}>logout</button>
       <Togglable buttonLabel={'Create New Blog'}>
-        <NewBlogForm setToastMsg={setToastMsg} getBlogs={getBlogs}/>
+        <NewBlogForm createBlog={createBlog}/>
       </Togglable>
       <h2>blogs</h2>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} getBlogs={getBlogs}/>
+        <Blog key={blog.id} blog={blog} getBlogs={getBlogs} toggleVisibility={() => setVisible(!visible)} visible={visible}/>
       )}
     </div>
   )

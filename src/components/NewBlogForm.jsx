@@ -1,44 +1,62 @@
 import React,{ useState } from 'react'
-import blogService from '../services/blogs'
+import { Toast } from '../App'
 
-const NewBlogForm = ({ setToastMsg,getBlogs }) => {
+const NewBlogForm = ({ createBlog }) => {
   const [blogTitle,setBlogTitle] = useState('')
   const [blogAuthor,setBlogAuthor] = useState('')
   const [blogUrl,setBlogUrl] = useState('')
+  const [newBlogAlert,setNewBlogAlert] = useState('')
 
-  const createBlog = async (e) => {
+  const handleTitleChange = (e) => {
+    setBlogTitle(e.target.value)
+  }
+
+  const handleAuthorChange = (e) => {
+    setBlogAuthor(e.target.value)
+  }
+
+  const handleUrlChange = (e) => {
+    setBlogUrl(e.target.value)
+  }
+
+  const addNewBlog = (e) => {
     e.preventDefault()
-
-    try {
-      const res = await blogService.createNewBlog({ title:blogTitle,author:blogAuthor,url:blogUrl })
-      console.log(res.data)
-      setToastMsg(`New Blog by ${blogAuthor} titled ${blogTitle} has been added`)
-      setBlogTitle('')
-      setBlogAuthor('')
-      setBlogUrl('')
+    try{
+      createBlog({
+        title:blogTitle,
+        author:blogAuthor,
+        url:blogUrl
+      })
+      setNewBlogAlert(`New Blog by ${blogAuthor} titled ${blogTitle} has been added`)
       setTimeout(() => {
-        setToastMsg(null)
+        setNewBlogAlert(null)
       }, 5000)
-      getBlogs()
-    } catch(exception){
-      setToastMsg(`Error: ${exception.response.data.error}`)
+    } catch(e) {
+      setNewBlogAlert(`Error: ${e.response.data.error}`)
       setTimeout(() => {
-        setToastMsg(null)
+        setNewBlogAlert(null)
       }, 5000)
     }
+
+    setBlogTitle('')
+    setBlogAuthor('')
+    setBlogUrl('')
   }
 
   return (
     <>
+      <Toast toastMsg={newBlogAlert}/>
       <h2>Add new blog</h2>
-      <form onSubmit={createBlog}>
+      <form onSubmit={addNewBlog}>
         <div>
                 Title
           <input
             type="text"
             value={blogTitle}
             name="Title"
-            onChange={({ target }) => setBlogTitle(target.value)}
+            placeholder='Title of the article'
+            onChange={handleTitleChange}
+            id='article-title'
           />
         </div>
         <div>
@@ -47,7 +65,8 @@ const NewBlogForm = ({ setToastMsg,getBlogs }) => {
             type="text"
             value={blogAuthor}
             name="Author"
-            onChange={({ target }) => setBlogAuthor(target.value)}
+            placeholder='The person who wrote this'
+            onChange={handleAuthorChange}
           />
         </div>
         <div>
@@ -56,7 +75,8 @@ const NewBlogForm = ({ setToastMsg,getBlogs }) => {
             type="text"
             value={blogUrl}
             name="URL"
-            onChange={({ target }) => setBlogUrl(target.value)}
+            placeholder='Article web link address'
+            onChange={handleUrlChange}
           />
         </div>
         <button type="submit">Add Blog</button>

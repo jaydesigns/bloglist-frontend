@@ -1,23 +1,13 @@
 import React,{ useState } from 'react'
 import blogService from '../services/blogs'
+import Togglable from './Togglable'
 
-const Blog = ({ blog,getBlogs }) => {
-  const [visible, setVisible] = useState(false)
+const Blog = ({ blog,getBlogs,toggleVisibility,visible }) => {
   const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
+    padding: 10,
     border: 'solid',
     borderWidth: 1,
     marginBottom: 5
-  }
-
-  const toggleVisibility = () => {
-    setVisible(!visible)
-  }
-
-  const addOneLike = (e) => {
-    blogService.increaseLike(blog)
-    getBlogs()
   }
 
   const deleteBlogEntry = () => {
@@ -26,20 +16,28 @@ const Blog = ({ blog,getBlogs }) => {
     }
   }
 
-  console.log(blog)
+  const addOneLike = (e) => {
+    blogService.increaseLike(blog)
+    getBlogs()
+  }
+
+  // console.log(blog)
   return (
     <div style={blogStyle}>
-      <div style={{ display:'flex',justifyContent:'space-between',padding:'10px' }}>
-        {blog.title}
-        <button onClick={toggleVisibility}>{visible?'See less':'See more'}</button>
+      <div>
+        <div style={{ display:'flex',flexDirection:'column' }}>
+          <h2 className='title'>{blog.title}</h2>
+          <p className='author'>By: {blog.author}</p>
+        </div>
       </div>
-      <div style={{ display: visible ? '' : 'none' }}>
-        <span>{blog.likes}</span><button onClick={addOneLike} id={blog.id}>like</button>
-        <p>{blog.url}</p>
-        <p>{blog.author}</p>
-        <p>{blog.user.name}</p>
-        <button onClick={deleteBlogEntry}>Delete this entry</button>
-      </div>
+      <Togglable buttonLabel={'See more details'}>
+        <div className='details' style={{ marginBottom:'20px' }}>
+          <span className='likes' style={{ marginRight:'20px' }}>{blog.likes}</span><button onClick={addOneLike} id={blog.id} className='likeBtn'>Like</button>
+          <p className='url'>{blog.url}</p>
+          <p>{blog.user.name}</p>
+          <button onClick={deleteBlogEntry}>Delete this entry</button>
+        </div>
+      </Togglable>
     </div>
   )
 }
